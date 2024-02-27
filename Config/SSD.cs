@@ -129,7 +129,7 @@ namespace WinformHumanAnFaceDetection.Config
 		public static List<string> GPU_NVIDIA_Names()
 		{
 			List<string> deviceNames = new List<string>();
-			try
+			try // trong trường hợp máy không có card nvidia thì lỗi nvapi.dll
 			{
 				var physicalGPUs = PhysicalGPU.GetPhysicalGPUs();
 				foreach (var gpu in physicalGPUs)

@@ -1,0 +1,1 @@
+{"textFileName":"deploy.prototxt","caffemodelFile":"mobilenet_iter_73000.caffemodel","scaleFactor":0.007843,"size":"300, 300","scalar":{"V0":127.5,"V1":127.5,"V2":127.5,"V3":0.0},"class_id":[15]}

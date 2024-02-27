@@ -1,0 +1,1 @@
+{"textFileName":"weights-prototxt.txt","caffemodelFile":"res_ssd_300Dim.caffeModel","scaleFactor":1.0,"size":"300, 300","scalar":{"V0":104.0,"V1":177.0,"V2":123.0,"V3":0.0},"class_id":[1]}
