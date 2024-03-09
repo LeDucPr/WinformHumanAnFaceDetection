@@ -21,7 +21,7 @@ namespace WinformHumanAnFaceDetection.Config
 		}
 		public static void Usage(this Emgu.CV.Dnn.Net net, EDeviceUsage eUsage)
 		{
-			if (!CudaInvoke.HasCuda && eUsage == EDeviceUsage.Cuda) return;
+			if (!CudaInvoke.HasCuda && eUsage == EDeviceUsage.Cuda) return; // không có card mà vãn cố dùng thì thôi 
 			DeviceUsage deviceUsage = DeviceUsage.Setup(eUsage);
 			net.SetPreferableBackend(deviceUsage.Backend);
 			net.SetPreferableTarget(deviceUsage.Target);
