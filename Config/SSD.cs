@@ -61,7 +61,7 @@ namespace WinformHumanAnFaceDetection.Config
 				net = DnnInvoke.ReadNetFromCaffe(deployPrototxtPath, caffemodelPath);
 			}
 #pragma warning restore CS8604 // Possible null reference argument.
-			this.DeviceSetup(EDeviceUsage.Cpu); 
+			this.DeviceSetup(EDeviceUsage.Cpu);
 			//this.DeviceSetup(EDeviceUsage.Cuda);// mặc định thế, còn nếu có cuda thì tự set dòng này
 		}
 
@@ -129,12 +129,16 @@ namespace WinformHumanAnFaceDetection.Config
 		public static List<string> GPU_NVIDIA_Names()
 		{
 			List<string> deviceNames = new List<string>();
-			var physicalGPUs = PhysicalGPU.GetPhysicalGPUs();
-			foreach (var gpu in physicalGPUs)
+			try // trong trường hợp máy không có card nvidia thì lỗi nvapi.dll
 			{
-				string gpuName = gpu.FullName;
-				deviceNames.Add(gpuName);
+				var physicalGPUs = PhysicalGPU.GetPhysicalGPUs();
+				foreach (var gpu in physicalGPUs)
+				{
+					string gpuName = gpu.FullName;
+					deviceNames.Add(gpuName);
+				}
 			}
+			catch {}
 			return deviceNames;
 		}
 	}
