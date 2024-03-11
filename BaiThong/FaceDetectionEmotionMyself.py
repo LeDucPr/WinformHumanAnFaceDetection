@@ -3,19 +3,22 @@ import cv2
 from keras.models import load_model
 import tensorflow as tf
 
+#### kiểm tra đầu vào mô hình sử dụng 
 # emotion_model = load_model('emotion_classification_7classes.hdf5') # emotion 
 # input_shape = emotion_model.layers[0].input_shape
 # print(input_shape)
 
 # emotion_model = load_model("my_model_2.h5") # emotion 
 # input_shape = emotion_model.layers[0].input_shape
-# print(input_shape)
+# print(input_shape) # mô hình tự tạo có 3 kênh xám đầu vào thay vì 1 như cái loot được trên mạng 
 
 class FaceDct_EmoModel:
-    def __init__(self):
-        self.isModelOfMine = False 
-        self.emotion_model = load_model("my_model_2.h5") # emotion of myself 
-        self.emotion_model = load_model('emotion_classification_7classes.hdf5') # emotion 
+    def __init__(self, isModelOfMine=False):
+        self.isModelOfMine = isModelOfMine
+        if (isModelOfMine): 
+            self.emotion_model = load_model("my_model_2.h5") # emotion of myself 
+        else: 
+            self.emotion_model = load_model('emotion_classification_7classes.hdf5') # emotion 
         self.net = cv2.dnn.readNetFromCaffe("weights-prototxt.txt", "res_ssd_300Dim.caffeModel") # SSD + ResNet caffe model 300x300 
         self.emotion_list = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral'] # Danh sách các cảm xúc
         physical_devices = tf.config.experimental.list_physical_devices("GPU");
@@ -72,7 +75,7 @@ class FaceDct_EmoModel:
         return image
 
 # video stream initialization
-model = FaceDct_EmoModel()
+model = FaceDct_EmoModel(True)
 vs = cv2.VideoCapture(0) 
 while True: # cái này chơi camera thôi 
     ret, frame = vs.read()
