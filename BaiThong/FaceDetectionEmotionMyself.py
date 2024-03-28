@@ -74,16 +74,47 @@ class FaceDct_EmoModel:
         self.DrawRect_Text(self.AcrFaceDct_Size_Emo(image), image)
         return image
 
-# video stream initialization
-model = FaceDct_EmoModel(True)
-vs = cv2.VideoCapture(0) 
-while True: # cái này chơi camera thôi 
-    ret, frame = vs.read()
+# # Sử dụng camera trực tiếp 
+# model = FaceDct_EmoModel(True)
+# vs = cv2.VideoCapture(0) 
+# while True: # cái này chơi camera thôi 
+#     ret, frame = vs.read()
+#     frame = model.Run(frame)
+#     cv2.imshow("Press ESC to exit", frame) # show thằng frame này ra 
+#     if cv2.waitKey(1) == 27: # 27 trong ASCii # nhấn vào ESC là cúc 
+#         break
+# # stop capturing
+# cv2.destroyAllWindows()
+# vs.stop()
+
+
+
+model = FaceDct_EmoModel(True) # true là mô hình tự tạo bằng "Train7Emo2.ipynb", False là lấy trên mạng 
+cap = cv2.VideoCapture("cc.mp4")
+if not cap.isOpened(): # Kiểm tra video có mở thành công hay không
+    print("Lỗi: Không thể mở file video.")
+    exit()
+fps = cap.get(cv2.CAP_PROP_FPS) # Lấy fps mặc định của video
+frame_delay = 1 / fps * 1000 # Tính thời gian chờ giữa các frame # mili giây
+running = True
+while running:
+    ret, frame = cap.read()
     frame = model.Run(frame)
-    cv2.imshow("Press ESC to exit", frame) # show thằng frame này ra 
-    if cv2.waitKey(1) == 27: # 27 trong ASCii # nhấn vào ESC là cúc 
+    if not ret: # nếu hết video 
         break
-# stop capturing
+    # tạo view mới bằng 1/4 kích thước (S) của mặc định
+    width, height = frame.shape[1], frame.shape[0]
+    new_width = width // 2
+    new_height = height // 2
+
+    cv2.namedWindow("Frame", cv2.WINDOW_NORMAL) 
+    cv2.resizeWindow("Frame", new_width, new_height) # Thay đổi kích thước cửa sổ
+    cv2.imshow("Frame", frame)
+    cv2.waitKey(int(frame_delay)) # chờ cho bằng fps
+    if cv2.waitKey(1) == 27: # 27 trong ASCii # nhấn vào ESC là cúc 
+        running = False
+cap.release()
 cv2.destroyAllWindows()
-vs.stop()
+
+
 
