@@ -19,15 +19,18 @@ namespace CameraHumanDetection
 		private Thread? trackerThread;
 		private Thread detectionThread;
 		private Semaphore _semaphore = new Semaphore(2, 2);
-		SSD pascalSSD;
-		// image file 
+		int amountModelPascalSSD = 5; // mặc định là 1 
+		Dictionary<SSD, bool> pascalSSDs; // true là đang hoạt động, false là không hoạt động
+										  // image file 
 		FolderTree _rootInputFolder = new FolderTree();
 		FolderTree _rootOutputFolder = new FolderTree();
 
 		// khởi tạo 
 		public ObjectCutterFromImage()
 		{
-			pascalSSD = new SSD(@"runtimes\SSD\PascalSSD");
+			this.pascalSSDs = new Dictionary<SSD, bool>();
+			for (int i = 0; i < this.amountModelPascalSSD; i++)
+				this.pascalSSDs.Add(new SSD(@"runtimes\SSD\PascalSSD"), false);
 			// Form được load sau khi khởi tạo các thuật toán điều khiển, có thay đổi gì thì tính sau 
 			this.InitializeComponent();
 			this.FormSizeLimited();
@@ -81,8 +84,10 @@ namespace CameraHumanDetection
 		EDeviceUsage connvertDevice = EDeviceUsage.Cpu; // khởi tạo được dùng cpu 
 		private async void comboBoxDevices_SelectedIndexChanged(object sender, EventArgs e)
 		{
+			if (this.pascalSSDs.Count == 0)
+				return;
 			string? selected = comboBoxDevices?.SelectedItem?.ToString();
-			if (selected == "Cpu" && this.pascalSSD.EUsage != EDeviceUsage.Cpu)
+			if (selected == "Cpu" && this.pascalSSDs.ElementAt(0).Key.EUsage != EDeviceUsage.Cpu)
 			{
 				this.isPause = true;
 				this.connvertDevice = EDeviceUsage.Cpu;
@@ -101,7 +106,8 @@ namespace CameraHumanDetection
 					Thread.Sleep(10); // Đợi trong một khoảng thời gian ngắn để tránh việc sử dụng CPU quá mức
 				}
 
-				this.pascalSSD.DeviceSetup(this.connvertDevice);
+				// phải setup cho tất cả các mô hình đang hoạt động sử dụng chung một thiết bị
+				this.pascalSSDs.ToList().ForEach(pascalSSD => pascalSSD.Key.DeviceSetup(this.connvertDevice));
 				this.isPause = false;
 				this.isDevicePause = false;
 			});
@@ -152,9 +158,9 @@ namespace CameraHumanDetection
 		{
 			await Task.Run(() =>
 			{
-				try{treeView.Nodes.Clear();}catch{} // sự kiện không có Nodes để xóa (null)
-				////root.Dispose();
-				//this.Invoke((MethodInvoker)delegate{});
+				try { treeView.Nodes.Clear(); } catch { } // sự kiện không có Nodes để xóa (null)
+														  ////root.Dispose();
+														  //this.Invoke((MethodInvoker)delegate{});
 				if (!string.IsNullOrEmpty(selectedPath))
 					root.Populate(selectedPath, selectedPath);
 				root.PopulateTreeView(treeView, root);
@@ -179,7 +185,7 @@ namespace CameraHumanDetection
 				this.detectionThread = new Thread(() =>
 				{
 					//this._rootInputFolder.GetImageFiles(this.textBoxSaveFolderPath.Text).AsParallel().ForAll(imagePath =>
-					this._rootInputFolder.GetImageFiles(this.textBoxSaveFolderPath.Text).ToList().ForEach(imagePath =>
+					this._rootInputFolder.GetImageFiles(this.textBoxSaveFolderPath.Text).AsParallel().ForAll(imagePath =>
 						{
 							try
 							{
@@ -188,21 +194,35 @@ namespace CameraHumanDetection
 								////var rects = pascalSSD.Detector(emguImage, double.Parse(labelARCIndex.Text));
 								////emguImage.DrawRectsToImage(pascalSSD.Detector(emguImage, double.Parse(labelARCIndex.Text)), thickness: 3);
 
-								var rects = pascalSSD.Detector(emguImage, double.Parse(labelARCIndex.Text));
-								if (rects.Count > 0)
-								{
-									Rectangle rect = rects[0];
-									Emgu.CV.Image<Bgr, byte> emguImageOutput = emguImage.GetSubRect(rect);
-									string imageOutputPath = Path.Combine(this.textBoxSaveFolderPath.Text, imagePath);
-									emguImageOutput.Save(imageOutputPath);
-									emguImageOutput.Dispose();
-								}
-								// lưu xong hủy luôn emguImage để giải phóng bộ nhớ
-								emguImage.Dispose();
+								SSD? pascalSSDNotWorking = null;
 
+								while (pascalSSDNotWorking == null)
+								{
+									pascalSSDNotWorking = this.pascalSSDs.Where(pascalSSD => !pascalSSD.Value).FirstOrDefault().Key;
+									if (pascalSSDNotWorking == null) { }
+									//Thread.Sleep(10);// Optional: Ngủ một chút để giảm tải CPU
+								}
+
+								lock (pascalSSDNotWorking)
+								{
+									this.pascalSSDs[pascalSSDNotWorking] = true;
+									var rects = pascalSSDNotWorking.Detector(emguImage, double.Parse(labelARCIndex.Text));
+									if (rects.Count > 0)
+									{
+										Rectangle rect = rects[0];
+										Emgu.CV.Image<Bgr, byte> emguImageOutput = emguImage.GetSubRect(rect);
+										string imageOutputPath = Path.Combine(this.textBoxSaveFolderPath.Text, imagePath);
+										emguImageOutput.Save(imageOutputPath);
+										emguImageOutput.Dispose();
+									}
+									// lưu xong hủy luôn emguImage để giải phóng bộ nhớ
+									emguImage.Dispose();
+									this.pascalSSDs[pascalSSDNotWorking] = false;
+								}
 								if (this.isPause)
 									this.isDevicePause = true;
-							}catch{}
+							}
+							catch { }
 						});
 				});
 				this.detectionThread.IsBackground = true; // detection nên cho là DaemonThread 
