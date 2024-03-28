@@ -36,6 +36,7 @@ namespace CameraHumanDetection
 
         //form
         private Camera currentCameraForm;
+        private ObjectCutterFromImage currentObjectCutterForm;
         private Form activeForm;
         public CMainPage()
         {
@@ -79,6 +80,15 @@ namespace CameraHumanDetection
                 OpenChildForm(this.currentCameraForm, this.panelBodyMiddle);
             this.activeForm = this.currentCameraForm;
         }
+
+        private void buttonRecog_Click(object sender, EventArgs e)
+        {
+			if (this.currentObjectCutterForm == null)
+				this.currentObjectCutterForm = new ObjectCutterFromImage();
+			if (this.activeForm != this.currentObjectCutterForm)
+				OpenChildForm(this.currentObjectCutterForm, this.panelBodyMiddle);
+			this.activeForm = this.currentObjectCutterForm;
+		}
 
         private void buttonMinimize_Click(object sender, EventArgs e)
         {

@@ -131,6 +131,7 @@
             buttonRecog.TabIndex = 1;
             buttonRecog.Text = "👤";
             buttonRecog.UseVisualStyleBackColor = false;
+            buttonRecog.Click += buttonRecog_Click;
             // 
             // buttonCamera
             // 

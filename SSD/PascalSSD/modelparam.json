@@ -1,1 +1,33 @@
-{"textFileName":"deploy.prototxt","caffemodelFile":"mobilenet_iter_73000.caffemodel","scaleFactor":0.007843,"size":"300, 300","scalar":{"V0":127.5,"V1":127.5,"V2":127.5,"V3":0.0},"class_id":[15]}
+{
+  "textFileName": "deploy.prototxt",
+  "caffemodelFile": "mobilenet_iter_73000.caffemodel",
+  "scaleFactor": 0.007843,
+  "size": "300, 300",
+  "scalar": {
+    "V0": 127.5,
+    "V1": 127.5,
+    "V2": 127.5,
+    "V3": 0.0
+  },
+  "class_id": [ 8 ] //[ 15 ]
+}
+//Airplane (Máy bay) - 1
+//Bicycle (Xe đạp) - 2
+//Bird (Chim) - 3
+//Boat (Thuyền) - 4
+//Bottle (Chai) - 5
+//Bus (Xe buýt) - 6
+//Car (Xe hơi) - 7
+//Cat (Mèo) - 8
+//Chair (Ghế) - 9
+//Cow (Bò) - 10
+//Dining table (Bàn ăn) - 11
+//Dog (Chó) - 12
+//Horse (Ngựa) - 13
+//Motorcycle (Xe máy) - 14
+//Person (Người) - 15
+//Potted plant (Cây cảnh) - 16
+//Sheep (Cừu) - 17
+//Sofa (Ghế sofa) - 18
+//Train (Tàu hỏa) - 19
+//Tv/monitor (Tivi/màn hình) - 20
