@@ -106,6 +106,14 @@ namespace WinformHumanAnFaceDetection.DataConfig
 			}
 		}
 
+		public int TotalImageFiles()
+		{
+			int total = ImageFileCount;
+			foreach (var subFolder in SubFolders)
+				total += subFolder.TotalImageFiles();
+			return total;
+		}
+
 		private bool IsImage(string file)
 		{
 			string[] extensions = new string[] { ".jpg", ".jpeg", ".png", ".gif", ".tiff", ".bmp", ".svg" };

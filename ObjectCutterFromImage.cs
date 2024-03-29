@@ -184,6 +184,10 @@ namespace CameraHumanDetection
 			{
 				this.detectionThread = new Thread(() =>
 				{
+					// tổng số lượng file ảnh 
+					int totalImages = this._rootInputFolder.TotalImageFiles(); 
+					// cập nhật trong label 
+					this.Invoke((MethodInvoker)delegate { this.labelRemainingImages.Text = totalImages.ToString(); });
 					//this._rootInputFolder.GetImageFiles(this.textBoxSaveFolderPath.Text).AsParallel().ForAll(imagePath =>
 					this._rootInputFolder.GetImageFiles(this.textBoxSaveFolderPath.Text).AsParallel().ForAll(imagePath =>
 						{
@@ -218,6 +222,7 @@ namespace CameraHumanDetection
 									// lưu xong hủy luôn emguImage để giải phóng bộ nhớ
 									emguImage.Dispose();
 									this.pascalSSDs[pascalSSDNotWorking] = false;
+									this.Invoke((MethodInvoker)delegate { this.labelRemainingImages.Text = (--totalImages).ToString(); });
 								}
 								if (this.isPause)
 									this.isDevicePause = true;
