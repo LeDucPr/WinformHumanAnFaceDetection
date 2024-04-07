@@ -19,7 +19,7 @@ namespace CameraHumanDetection
 		private Thread? trackerThread;
 		private Thread detectionThread;
 		private Semaphore _semaphore = new Semaphore(2, 2);
-		int amountModelPascalSSD = 5; // mặc định là 1 
+		int amountModelPascalSSD = 10; // mặc định là 1 
 		Dictionary<SSD, bool> pascalSSDs; // true là đang hoạt động, false là không hoạt động
 										  // image file 
 		FolderTree _rootInputFolder = new FolderTree();
@@ -215,6 +215,7 @@ namespace CameraHumanDetection
 									{
 										Rectangle rect = rects[0];
 										Emgu.CV.Image<Bgr, byte> emguImageOutput = emguImage.GetSubRect(rect);
+										emguImageOutput = emguImageOutput.Resize(256, 256, Emgu.CV.CvEnum.Inter.Linear); 
 										string imageOutputPath = Path.Combine(this.textBoxSaveFolderPath.Text, imagePath);
 										emguImageOutput.Save(imageOutputPath);
 										emguImageOutput.Dispose();
