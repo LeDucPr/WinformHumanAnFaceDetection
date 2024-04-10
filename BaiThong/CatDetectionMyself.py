@@ -1,3 +1,4 @@
+import os
 import datetime
 import numpy as np
 import cv2
@@ -5,8 +6,11 @@ from keras.models import load_model
 import tensorflow as tf
 
 class FaceDct_CatModel:
-    def __init__(self):
-        self.cat_model = load_model("my_model_ImageNet_2_BackGroundGT.h5")
+    def __init__(self, save_folder=""):
+        self.save_folder = save_folder
+        if (self.save_folder != ""): 
+            self.save_folder += "/"
+        self.cat_model = load_model("my_model_ImageNet_2.h5")
         self.net = cv2.dnn.readNetFromCaffe("deploy.prototxt", "mobilenet_iter_73000.caffemodel") # SSD + ResNet caffe model 300x300 
         self.cat_list = ["Abyssinian","American Bobtail","American Curl","American Shorthair","Bengal","Birman","Bombay","British Shorthair","Egyptian Mau","Exotic Shorthair","Maine Coon","Manx","Norwegian Forest","Persian","Ragdoll","Russian Blue","Scottish Fold","Siamese","Sphynx","Turkish Angora"]
         physical_devices = tf.config.experimental.list_physical_devices("GPU");
@@ -45,18 +49,13 @@ class FaceDct_CatModel:
             # chỗ này ghi cái confidence (giống cái accuracy) vào text trên ảnh
             cv2.putText(image, text + " " +str(confidence), (x1, y), cv2.LINE_AA, 0.45, textColor, 2)
 
-            # Lấy thời gian hiện tại
-            now = datetime.datetime.now()
-
-            # Định dạng chuỗi thời gian
-            time_str = now.strftime("%Y%m%d_%H%M%S")
-
-            # Tạo đường dẫn tệp đầy đủ
-            file_path = "images/" + time_str + "_" + cat_type + ".jpg"
-
-            # Lưu hình ảnh
-            cv2.imwrite(file_path, image)
-
+            now = datetime.datetime.now() # Lấy thời gian hiện tại
+            time_str = now.strftime("%Y%m%d_%H%M%S") # Định dạng chuỗi thời gian
+            dir_path = "images224classic/" + self.save_folder # Tạo đường dẫn thư mục
+            if not os.path.exists(dir_path): # Kiểm tra xem thư mục đã tồn tại chưa
+                os.makedirs(dir_path)  # Tạo thư mục nếu nó không tồn tại
+            file_path = dir_path + time_str + "_" + cat_type + ".jpg"  # Tạo đường dẫn tệp đầy đủ
+            cv2.imwrite(file_path, image)  # Lưu hình ảnh
             print("Lưu ảnh thành công:", file_path)
         return image
     def Show(self, image):
@@ -82,8 +81,8 @@ class FaceDct_CatModel:
 
 
 
-model = FaceDct_CatModel() # true là mô hình tự tạo bằng "Train7Emo2.ipynb", False là lấy trên mạng 
-cap = cv2.VideoCapture("Vety funny cats.mp4")
+model = FaceDct_CatModel("abyssinian") # true là mô hình tự tạo bằng "Train7Emo2.ipynb", False là lấy trên mạng 
+cap = cv2.VideoCapture("abyssinian cat.mp4")
 if not cap.isOpened(): # Kiểm tra video có mở thành công hay không
     print("Lỗi: Không thể mở file video.")
     exit()
@@ -92,7 +91,7 @@ frame_delay = 1 / fps * 1000 # Tính thời gian chờ giữa các frame # mili 
 running = True
 while running:
     ret, frame = cap.read()
-    frame = model.Run(frame)
+    frame = model.Run(frame) 
     if not ret: # nếu hết video 
         break
     # tạo view mới bằng 1/4 kích thước (S) của mặc định
