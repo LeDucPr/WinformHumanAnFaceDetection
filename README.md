@@ -1,4 +1,4 @@
-# WinformHumanAnFaceDetection 
+# WinformHumanAnFaceDetection (mở file readme.md ở dạng text để nhìn được rõ kiến trúc)
  + EmguCV 4.6 (Update .net8)
  + Khử độ trễ load thư viện Emgu
  + Sử dụng Single Shot Detection (SSD)
